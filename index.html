@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Reel Generator</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles/style.css">
+</head>
+<body>
+    <!-- Background Gradient Elements -->
+    <div class="bg-blur bg-blur-1"></div>
+    <div class="bg-blur bg-blur-2"></div>
+
+    <!-- Header Navigation -->
+    <nav class="header">
+        <div class="logo">
+            <i class="ph-fill ph-video-camera"></i>
+            <span>ReelGenAI</span>
+        </div>
+        <div class="header-actions">
+            <button id="historyBtn" class="icon-btn" title="View History">
+                <i class="ph ph-clock-counter-clockwise"></i>
+            </button>
+            <button id="themeToggle" class="icon-btn" title="Toggle Theme">
+                <i class="ph ph-sun"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Hero Section -->
+        <section class="hero text-center">
+            <h1>Spark Your Next <span class="gradient-text">Viral Video</span></h1>
+            <p class="subtitle">Generate highly engaging Instagram Reel and Short Video ideas tailored to your niche using the power of AI.</p>
+        </section>
+
+        <!-- Input Card -->
+        <section class="input-card glass-panel">
+            <form id="generatorForm">
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label for="niche">Target Niche <span class="required">*</span></label>
+                        <input type="text" id="niche" placeholder="e.g. Fitness, Tech, Travel" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="audience">Target Audience</label>
+                        <select id="audience">
+                            <option value="General public">General / Anyone</option>
+                            <option value="Beginners">Beginners</option>
+                            <option value="Professionals">Professionals</option>
+                            <option value="Entrepreneurs">Entrepreneurs</option>
+                            <option value="Students">Students</option>
+                            <option value="Parents">Parents</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="input-group mt-1">
+                    <label for="tone">Tone / Style <span class="required">*</span></label>
+                    <select id="tone" required>
+                        <option value="motivational">Motivational / Inspiring</option>
+                        <option value="funny">Funny / Humorous</option>
+                        <option value="educational">Educational / Informative</option>
+                        <option value="cinematic">Cinematic / Aesthetic</option>
+                        <option value="controversial">Controversial / Engaging</option>
+                        <option value="storytelling">Storytelling</option>
+                    </select>
+                </div>
+                <button type="submit" id="generateBtn" class="primary-btn mt-2">
+                    <i class="ph-bold ph-magic-wand"></i>
+                    <span>Generate Ideas</span>
+                </button>
+            </form>
+        </section>
+
+        <!-- Results Section (Hidden initially) -->
+        <section id="resultsSection" class="results-container hidden">
+            <div class="results-header">
+                <h2>Generated Ideas</h2>
+                <div class="results-actions">
+                    <button id="exportBtn" class="secondary-btn" title="Export as TXT">
+                        <i class="ph ph-export"></i> Export
+                    </button>
+                </div>
+            </div>
+
+            <!-- Skeleton Loader -->
+            <div id="skeletonLoader" class="grid-cards hidden">
+                <div class="skeleton-card glass-panel">
+                    <div class="skeleton-line title w-70"></div>
+                    <div class="skeleton-line text w-100"></div>
+                    <div class="skeleton-line text w-90"></div>
+                    <div class="skeleton-line text w-60"></div>
+                    <div class="skeleton-footer">
+                        <div class="skeleton-pill"></div>
+                        <div class="skeleton-pill"></div>
+                    </div>
+                </div>
+                <div class="skeleton-card glass-panel">
+                    <div class="skeleton-line title w-60"></div>
+                    <div class="skeleton-line text w-100"></div>
+                    <div class="skeleton-line text w-80"></div>
+                    <div class="skeleton-line text w-70"></div>
+                    <div class="skeleton-footer">
+                        <div class="skeleton-pill"></div>
+                        <div class="skeleton-pill"></div>
+                    </div>
+                </div>
+                <div class="skeleton-card glass-panel">
+                    <div class="skeleton-line title w-80"></div>
+                    <div class="skeleton-line text w-100"></div>
+                    <div class="skeleton-line text w-90"></div>
+                    <div class="skeleton-line text w-50"></div>
+                    <div class="skeleton-footer">
+                        <div class="skeleton-pill"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Idea Cards -->
+            <div id="ideasGrid" class="grid-cards">
+                <!-- Cards injected dynamically here -->
+            </div>
+        </section>
+
+        <!-- History Sidebar (Slide-over) -->
+        <aside id="historySidebar" class="history-sidebar">
+            <div class="history-header">
+                <h3>Past Generations</h3>
+                <button id="closeHistoryBtn" class="icon-btn"><i class="ph ph-x"></i></button>
+            </div>
+            <div id="historyList" class="history-list">
+                <!-- History items injected here -->
+            </div>
+        </aside>
+    </main>
+
+
+
+    <!-- Scripts -->
+    <script src="config.js"></script>
+    <script src="scripts/ui.js"></script>
+    <script src="scripts/api.js"></script>
+    <script src="scripts/app.js"></script>
+</body>
+</html>
