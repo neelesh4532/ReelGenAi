@@ -1,31 +1,19 @@
 class App {
     constructor() {
         this.ui = new UIManager();
-        this.api = new GeminiAPI();
-        this.apiKey = '';
+        this.api = new ApiClient();
         this.currentIdeas = [];
         this.history = JSON.parse(localStorage.getItem('reelgen_history') || '[]');
     }
 
     async init() {
-        this.apiKey = this.getApiKey();
         this.initEventListeners();
-    }
-
-    getApiKey() {
-        // First check window.GEMINI_API_KEY (from config.js) then localStorage
-        return (typeof GEMINI_API_KEY !== 'undefined' ? GEMINI_API_KEY : null) || localStorage.getItem('gemini_api_key') || '';
     }
 
     initEventListeners() {
         // --- Core Application Form ---
         document.getElementById('generatorForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            if (!this.apiKey) {
-                this.ui.showToast('Please add your API key. (Modify config.js or provide it!)', 'error');
-                return;
-            }
 
             const niche = document.getElementById('niche').value.trim();
             const audience = document.getElementById('audience').value.trim();
@@ -65,7 +53,7 @@ class App {
     async generate(niche, audience, tone) {
         this.ui.setLoading(true);
         try {
-            const ideas = await this.api.generateIdeas(this.apiKey, niche, audience, tone);
+            const ideas = await this.api.generateIdeas(niche, audience, tone);
             this.currentIdeas = ideas;
             this.ui.renderIdeas(ideas);
             this.ui.showToast('ideas generated successfully!', 'success');
