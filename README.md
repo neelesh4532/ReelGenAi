@@ -1,7 +1,9 @@
 # AI Reel Generator
 
 A modern, vanilla HTML/CSS/JS client-side web application that generates creative Instagram Reel and Short Video ideas using the Google Gemini API.
-
+## Project structure
+- `client/`: web UI
+- `server/`: Express API (video pipeline, auth, Instagram integration)
 ## Features
 - **Client-Side Only**: Runs completely in the browser with no backend required.
 - **Sleek UI/UX**: Glassmorphic design, dark mode by default, customizable light mode option, and smooth animations.
