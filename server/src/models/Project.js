@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const projectSchema = new mongoose.Schema(
   {
     // Becomes required on Day 6 when auth is added
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', index: true },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     topic: { type: String, required: true, trim: true, maxlength: 200 },
     audience: { type: String, trim: true, maxlength: 100 },
     tone: { type: String, trim: true, maxlength: 50 },
