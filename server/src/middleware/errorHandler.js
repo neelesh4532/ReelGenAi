@@ -31,7 +31,8 @@ export function errorHandler(err, req, res, next) {
   else logger.warn({ msg: message, path: req.originalUrl }, 'Request failed');
 
   res.status(status).json({
-    error: status >= 500 ? 'Something went wrong' : message,
-    detail: process.env.NODE_ENV === 'production' ? undefined : err.message,
-  });
+      error: status >= 500 ? 'Something went wrong' : message,
+      detail:
+        status >= 500 && process.env.NODE_ENV !== 'production' ? err.message : undefined,
+    });
 }

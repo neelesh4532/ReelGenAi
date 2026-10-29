@@ -20,6 +20,7 @@ router.post('/', async (req, res, next) => {
 
     const project = await Project.create({
       ...parsed.data,
+      user: req.user.id,
       script,
       status: 'scripted',
     });
