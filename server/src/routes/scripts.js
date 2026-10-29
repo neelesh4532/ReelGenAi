@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { scriptRequestSchema } from '../schemas/script.js';
 import { generateScript } from '../services/scriptService.js';
+import { Project } from '../models/Project.js';
 
 const router = Router();
 
@@ -16,7 +17,14 @@ router.post('/', async (req, res, next) => {
 
     const script = await generateScript(parsed.data);
     const totalSeconds = script.scenes.reduce((sum, s) => sum + s.durationSec, 0);
-    res.json({ script, totalSeconds });
+
+    const project = await Project.create({
+      ...parsed.data,
+      script,
+      status: 'scripted',
+    });
+
+    res.json({ projectId: project._id, script, totalSeconds });
   } catch (err) {
     next(err);
   }
