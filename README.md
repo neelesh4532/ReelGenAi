@@ -1,21 +1,59 @@
-# AI Reel Generator
+# ReelGenAI
 
-A modern, vanilla HTML/CSS/JS client-side web application that generates creative Instagram Reel and Short Video ideas using the Google Gemini API.
+AI-powered short-video generator: turns a topic into a scripted, voiced, captioned reel and publishes it to Instagram.
+
+> Status: in active development (full-stack upgrade of an earlier ideas-only prototype)
+
+## Features
+- [x] Secure server-side Gemini integration (API key never reaches the browser)
+- [x] Structured scene-by-scene script generation, validated with zod (with self-correction retry)
+- [x] JWT authentication (bcrypt password hashing) and per-user projects
+- [x] MongoDB persistence, structured logging (pino), central error handling
+- [ ] Video pipeline: text-to-speech, stock footage, FFmpeg assembly (9:16 with captions)
+- [ ] Async rendering jobs with a queue (BullMQ + Redis) and progress tracking
+- [ ] Instagram OAuth and Reels publishing, plus scheduling
+- [ ] Docker, CI/CD, live deployment
+
+## Architecture
+_Diagram coming soon._
+
+    Client (React) -> API (Express) -> Queue (BullMQ/Redis) -> Worker (FFmpeg pipeline)
+                          |                                         |
+                      MongoDB                                Cloud storage -> Instagram Graph API
+
+## Tech stack
+Node.js, Express, MongoDB (Mongoose), zod, JWT, bcrypt, pino, Gemini API, FFmpeg, BullMQ, Redis, React, Docker
+
 ## Project structure
 - `client/`: web UI
-- `server/`: Express API (video pipeline, auth, Instagram integration)
-## Features
-- **Client-Side Only**: Runs completely in the browser with no backend required.
-- **Sleek UI/UX**: Glassmorphic design, dark mode by default, customizable light mode option, and smooth animations.
-- **Secure API Key Handling**: Prompts for your API key over a secure modal and stores it in `localStorage` or uses a local `config.js` file (ignored by Git).
-- **History & Export**: Automatically saves generated ideas history to localStorage and allows exporting ideas.
-- **Quick Copy**: Easily copy hooks, concepts, or whole ideas to your clipboard.
+- `server/`: Express API (scripts, auth, projects, video pipeline, Instagram integration)
 
-## How to Run locally
-1. Clone the repository.
-2. Open `index.html` in your browser.
-3. On first load, you will be prompted to enter your Gemini API Key in the UI.
-   - Alternatively, you can add your key directly to the `config.js` file (which is ignored by Git).
-4. Enter your niche, audience, and preferred tone, then hit generate!
+## Getting started
+1. Clone the repo and `cd server`
+2. `npm install`
+3. Copy `.env.example` to `.env` and fill in the values
+4. `npm run dev`
 
-![AI Reel Generator]() <!-- Placeholder for screenshot -->
+## Environment variables
+| Variable | Description |
+|---|---|
+| `PORT` | API port (default 5000) |
+| `CLIENT_URL` | Allowed browser origin for CORS |
+| `GEMINI_API_KEY` | Gemini API key |
+| `GEMINI_MODEL` | Model name (must be available on your tier) |
+| `MONGODB_URI` | MongoDB connection string |
+| `JWT_SECRET` | Random string, 32+ characters |
+| `JWT_EXPIRES_IN` | Token lifetime (e.g. `7d`) |
+
+## API overview
+| Method | Route | Auth | Description |
+|---|---|---|---|
+| POST | `/api/auth/register` | No | Create account |
+| POST | `/api/auth/login` | No | Log in, returns JWT |
+| GET | `/api/auth/me` | Yes | Current user |
+| POST | `/api/scripts` | Yes | Generate and save a scene-by-scene script |
+| GET | `/api/projects` | Yes | List your projects |
+| GET | `/api/projects/:id` | Yes | Get one project |
+
+## Roadmap
+See the open [issues](../../issues).
