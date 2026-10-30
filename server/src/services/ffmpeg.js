@@ -1,11 +1,12 @@
 import { spawn } from 'node:child_process';
 
-export function runFfmpeg(args, { timeoutMs = 120000 } = {}) {
+export function runFfmpeg(args, { timeoutMs = 120000, cwd } = {}) {
   return new Promise((resolve, reject) => {
     const proc = spawn('ffmpeg', ['-y', '-hide_banner', '-loglevel', 'error', ...args], {
       windowsHide: true,
+      cwd,
     });
-
+    
     let stderr = '';
     proc.stderr.on('data', (d) => { stderr += d; });
 
