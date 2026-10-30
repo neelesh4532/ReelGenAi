@@ -41,3 +41,24 @@ export function getDuration(file) {
     );
   });
 }
+export function getVideoSize(file) {
+  return new Promise((resolve, reject) => {
+    const proc = spawn(
+      'ffprobe',
+      ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height',
+       '-of', 'csv=p=0:s=x', file],
+      { windowsHide: true }
+    );
+
+    let out = '';
+    let err = '';
+    proc.stdout.on('data', (d) => { out += d; });
+    proc.stderr.on('data', (d) => { err += d; });
+    proc.on('error', reject);
+    proc.on('close', (code) => {
+      if (code !== 0) return reject(new Error(err.slice(-300)));
+      const [width, height] = out.trim().split('x').map(Number);
+      resolve({ width, height });
+    });
+  });
+}
