@@ -13,20 +13,31 @@ const script = {
 };
 
 const base = 'storage/demo';
+const reuse = process.argv.includes('--reuse');
 
-console.log('1/3 Generating narration...');
-const audio = await generateNarration(script, `${base}/audio`);
+console.log('1/3 Narration...');
+let audio;
+if (reuse) {
+  audio = [];
+  for (const [i] of script.scenes.entries()) {
+    const file = `${base}/audio/scene-${String(i + 1).padStart(2, '0')}.mp3`;
+    audio.push({ index: i, audioFile: file, audioSec: await getDuration(file) });
+  }
+} else {
+  audio = await generateNarration(script, `${base}/audio`);
+}
 
-console.log('2/3 Selecting footage...');
+console.log('2/3 Footage...');
 const footage = await fetchFootage(script, `${base}/footage`, {
   durations: audio.map((a) => a.audioSec),
 });
 
-console.log('3/3 Assembling reel...');
+console.log('3/3 Assembling...');
 const scenes = audio.map((a, i) => ({
   clipFile: footage[i].file,
   audioFile: a.audioFile,
   audioSec: a.audioSec,
+  narration: script.scenes[i].narration,
 }));
 const out = await assembleReel(scenes, `${base}/reel.mp4`, base);
 
