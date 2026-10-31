@@ -1,4 +1,5 @@
 # ReelGenAI
+![CI](https://github.com/neelesh4532/ReelGenAi/actions/workflows/ci.yml/badge.svg)
 
 AI-powered short-video generator: turns a topic into a scripted, voiced, captioned reel and publishes it to Instagram.
 
@@ -9,7 +10,7 @@ AI-powered short-video generator: turns a topic into a scripted, voiced, caption
 - [x] Structured scene-by-scene script generation, validated with zod (with self-correction retry)
 - [x] JWT authentication (bcrypt password hashing) and per-user projects
 - [x] MongoDB persistence, structured logging (pino), central error handling
-- [ ] Video pipeline: text-to-speech, stock footage, FFmpeg assembly (9:16 with captions)
+- [x] Video pipeline: text-to-speech, stock footage, FFmpeg assembly (9:16 with captions and music)
 - [ ] Async rendering jobs with a queue (BullMQ + Redis) and progress tracking
 - [ ] Instagram OAuth and Reels publishing, plus scheduling
 - [ ] Docker, CI/CD, live deployment
