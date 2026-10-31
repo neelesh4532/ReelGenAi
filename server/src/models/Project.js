@@ -10,6 +10,11 @@ const projectSchema = new mongoose.Schema(
     targetSeconds: { type: Number, default: 30 },
     script: { type: mongoose.Schema.Types.Mixed },
     status: {
+      videoPath: { type: String },
+      videoDurationSec: { type: Number },
+      renderedAt: { type: Date },
+      renderError: { type: String },
+      credits: { type: mongoose.Schema.Types.Mixed },  
       type: String,
       enum: ['draft', 'scripted', 'rendering', 'rendered', 'published', 'failed'],
       default: 'draft',
