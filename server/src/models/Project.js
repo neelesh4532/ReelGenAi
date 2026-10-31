@@ -16,7 +16,7 @@ const projectSchema = new mongoose.Schema(
       renderError: { type: String },
       credits: { type: mongoose.Schema.Types.Mixed },  
       type: String,
-      enum: ['draft', 'scripted', 'rendering', 'rendered', 'published', 'failed'],
+      enum: ['draft', 'scripted', 'queued','rendering', 'rendered', 'published', 'failed'],
       default: 'draft',
     },
   },
