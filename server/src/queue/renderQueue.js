@@ -8,7 +8,8 @@ const ACTIVE_STATES = ['waiting', 'active', 'delayed', 'prioritized', 'waiting-c
 export const renderQueue = new Queue(RENDER_QUEUE, {
   connection: createConnection('api'),
   defaultJobOptions: {
-    attempts: 1,
+    attempts: 3,
+    backoff: { type: 'exponential', delay: 20000 }, // 20s, then 40s
     removeOnComplete: { age: 3600, count: 100 },
     removeOnFail: { age: 24 * 3600, count: 200 },
   },
