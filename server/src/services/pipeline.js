@@ -8,6 +8,7 @@ import { generateNarration } from './narration.js';
 import { fetchFootage } from './footage.js';
 import { assembleReel } from './assembler.js';
 import { getDuration } from './ffmpeg.js';
+import { uploadVideo, deleteVideo } from './storage.js';
 
 // Run from the server/ folder, like the other services
 const STORAGE_ROOT = path.resolve('storage', 'projects');
@@ -66,7 +67,11 @@ export async function renderProject(projectId, { userId, onProgress = () => {} }
 
     const durationSec = await getDuration(outFile);
     const videoPath = path.join(String(project._id), 'reel.mp4'); // relative to storage/projects
-
+    onProgress({ stage: 'uploading', percent: 90 });
+    const stored = await uploadVideo(outFile, String(project._id));
+    if (stored.publicId && project.videoPublicId && project.videoPublicId !== stored.publicId) {
+      await deleteVideo(project.videoPublicId); // remove the previous render's video
+    }
     await Project.updateOne(
       { _id: project._id },
       {
@@ -75,6 +80,10 @@ export async function renderProject(projectId, { userId, onProgress = () => {} }
           videoPath,
           videoDurationSec: durationSec,
           renderedAt: new Date(),
+          storageProvider: stored.provider,
+          videoUrl: stored.url ?? null,
+          videoPublicId: stored.publicId ?? null,
+          videoBytes: stored.bytes,
           credits: footage.map((f) => ({
             scene: f.index + 1,
             provider: f.provider,

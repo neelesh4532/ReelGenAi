@@ -65,7 +65,7 @@ router.post('/:id/render', async (req, res, next) => {
 // Combines the database status with live job progress from the queue
 router.get('/:id/status', async (req, res, next) => {
   try {
-    const project = await ownedProject(req, 'status renderError videoDurationSec renderedAt');
+    const project = await ownedProject(req, 'status renderError videoDurationSec renderedAt videoUrl');
 
     let job = null;
     try {
@@ -88,6 +88,7 @@ router.get('/:id/status', async (req, res, next) => {
       renderError: project.renderError,
       videoDurationSec: project.videoDurationSec,
       renderedAt: project.renderedAt,
+      videoUrl: project.videoUrl,
       job,
     });
   } catch (err) {
