@@ -70,8 +70,16 @@ router.get('/:id/status', async (req, res, next) => {
     let job = null;
     try {
       const j = await getRenderJob(project._id);
-      if (j) job = { state: await j.getState(), progress: j.progress };
-    } catch {
+          if (j) {
+            job = {
+              state: await j.getState(),
+              progress: j.progress,
+              attemptsMade: j.attemptsMade,
+              maxAttempts: j.opts.attempts,
+              failedReason: j.failedReason,
+          };
+        }
+      } catch {
       // queue unavailable: fall back to the database status only
     }
 
