@@ -1,0 +1,32 @@
+.app-header { display: flex; justify-content: space-between; align-items: center; }
+.app-header .user { display: flex; gap: 1rem; align-items: center; }
+
+.error-box {
+  border: 1px solid #ef4444;
+  background: rgba(239, 68, 68, 0.12);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  margin-top: 1rem;
+}
+.error-box p { margin: 0.25rem 0; }
+
+.scene-list { display: grid; gap: 1rem; margin-top: 1rem; }
+.scene { padding: 1rem 1.25rem; }
+.scene h4 { margin: 0 0 0.5rem; }
+.scene .meta { opacity: 0.7; font-size: 0.9rem; margin: 0.4rem 0 0; }
+
+.project-list { list-style: none; padding: 0; margin: 1rem 0 0; display: grid; gap: 0.25rem; }
+.project-list li {
+  display: flex; justify-content: space-between; gap: 1rem;
+  padding: 0.6rem 0; border-bottom: 1px solid rgba(128, 128, 128, 0.25);
+}
+
+.badge {
+  padding: 0.1rem 0.7rem; border-radius: 999px; font-size: 0.8rem;
+  border: 1px solid rgba(128, 128, 128, 0.4); white-space: nowrap;
+}
+
+.link-btn {
+  background: none; border: none; color: inherit; text-decoration: underline;
+  cursor: pointer; padding: 0; font: inherit;
+}
