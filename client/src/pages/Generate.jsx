@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { api } from '../api.js';
 import { useAuth } from '../auth.jsx';
 
@@ -131,6 +132,10 @@ export default function Generate() {
               <p>{result.script.caption}</p>
               <p className="meta">{result.script.hashtags.join(' ')}</p>
             </div>
+
+            <Link to={`/projects/${result.projectId}`} className="primary-btn mt-2 link-as-btn">
+              <span>Edit and render this project</span>
+            </Link>
           </section>
         )}
 
@@ -140,7 +145,7 @@ export default function Generate() {
             <ul className="project-list">
               {projects.map((p) => (
                 <li key={p._id}>
-                  <span>{p.topic}</span>
+                  <Link to={`/projects/${p._id}`}>{p.topic}</Link>
                   <span className="badge">{p.status}</span>
                 </li>
               ))}

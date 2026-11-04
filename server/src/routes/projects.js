@@ -3,6 +3,8 @@ import mongoose from 'mongoose';
 import { Project } from '../models/Project.js';
 import { AppError } from '../middleware/errorHandler.js';
 import { enqueueRender, getRenderJob } from '../queue/renderQueue.js';
+import { validate } from '../middleware/validate.js';
+import { scriptSchema } from '../schemas/script.js';
 
 const router = Router();
 
@@ -91,6 +93,25 @@ router.get('/:id/status', async (req, res, next) => {
       videoUrl: project.videoUrl,
       job,
     });
+  } catch (err) {
+    next(err);
+  }
+});
+// Saves an edited script. The same validation as AI-generated scripts applies.
+router.patch('/:id/script', validate(scriptSchema), async (req, res, next) => {
+  try {
+    await ownedProject(req, '_id'); // 404 if it is not this user's project
+
+    // Not allowed while a render is queued or running
+    const result = await Project.updateOne(
+      { _id: req.params.id, user: req.user.id, status: { $nin: ['queued', 'rendering'] } },
+      { $set: { script: req.body, status: 'scripted' } }
+    );
+    if (result.matchedCount === 0) {
+      throw new AppError('This project is rendering, wait until it finishes', 409);
+    }
+
+    res.json({ ok: true });
   } catch (err) {
     next(err);
   }
