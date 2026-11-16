@@ -54,6 +54,7 @@ export default function Generate() {
         <div className="logo"><span>ReelGenAI</span></div>
         <div className="user">
           <span className="text-muted">{user.name || user.email}</span>
+          <Link to="/settings" className="link-btn">Instagram</Link>
           <button type="button" className="secondary-btn" onClick={logout}>Log out</button>
         </div>
       </nav>
