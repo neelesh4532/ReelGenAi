@@ -12,14 +12,24 @@ import scriptsRouter from './routes/scripts.js';
 import projectsRouter from './routes/projects.js';
 import authRouter from './routes/auth.js';
 import { requireAuth } from './middleware/auth.js';
+import instagramRouter from './routes/instagram.js';
+import { assertEncryptionKey } from './services/crypto.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(pinoHttp({ logger }));
+app.use(
+  pinoHttp({
+    logger,
+    serializers: {
+      req: (req) => ({ id: req.id, method: req.method, url: req.url.split('?')[0] }),
+    },
+  })
+);
 app.use(helmet());
 app.use(cors({ origin: process.env.CLIENT_URL || 'http://127.0.0.1:5500' }));
 app.use(express.json({ limit: '100kb' }));
+app.use('/api/instagram', instagramRouter);
 
 app.get('/health', (req, res) => {
   res.json({
