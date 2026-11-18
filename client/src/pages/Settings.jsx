@@ -4,7 +4,8 @@ import { api } from '../api.js';
 
 const FLASH = {
   connected: 'Instagram connected.',
-  denied: 'Instagram login was cancelled.',
+  denied: 'The login was cancelled.',
+  'no-account': 'Login worked, but no Instagram account was shared. Try again and select your Instagram account.',
   error: 'Could not connect Instagram. Please try again.',
 };
 
@@ -29,7 +30,7 @@ export default function Settings() {
     setError('');
     try {
       const { url } = await api('/instagram/connect');
-      window.location.href = url; // leave the app to log in on Instagram
+      window.location.href = url; // leave the app to log in
     } catch (err) {
       setError(err.message);
       setBusy(false);
@@ -40,19 +41,6 @@ export default function Settings() {
     setBusy(true);
     try {
       await api('/instagram', { method: 'DELETE' });
-      await load();
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function refresh() {
-    setBusy(true);
-    setError('');
-    try {
-      await api('/instagram/refresh', { method: 'POST' });
       await load();
     } catch (err) {
       setError(err.message);
@@ -82,16 +70,17 @@ export default function Settings() {
         ) : ig.connected ? (
           <>
             <h3>Connected as @{ig.username}</h3>
-            <p className="notice">Access expires in {ig.daysLeft} days.</p>
+            <p className="notice">
+              {ig.neverExpires ? 'Access does not expire until you disconnect.' : `Access expires ${new Date(ig.expiresAt).toLocaleDateString()}.`}
+            </p>
             <div className="row mt-2">
-              <button type="button" className="secondary-btn" onClick={refresh} disabled={busy}>Refresh access</button>
               <button type="button" className="secondary-btn" onClick={disconnect} disabled={busy}>Disconnect</button>
             </div>
           </>
         ) : (
           <>
             <h3>Not connected</h3>
-            <p className="notice">You will log in on Instagram and allow ReelGenAI to publish on your behalf.</p>
+            <p className="notice">You will log in with Facebook and choose the Instagram account to share.</p>
             <button type="button" className="primary-btn mt-2" onClick={connect} disabled={busy}>
               <span>Connect Instagram</span>
             </button>

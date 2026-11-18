@@ -4,7 +4,8 @@ import jwt from 'jsonwebtoken';
 import { signState, verifyState, buildAuthUrl } from '../src/services/instagramAuth.js';
 
 process.env.JWT_SECRET = 'x'.repeat(40);
-process.env.INSTAGRAM_APP_ID = '12345';
+process.env.META_APP_ID = '12345';
+process.env.META_LOGIN_CONFIG_ID = '67890';
 process.env.INSTAGRAM_REDIRECT_URI = 'https://example.test/api/instagram/callback';
 
 test('state round trip returns the user id', () => {
@@ -22,16 +23,17 @@ test('a normal login token is not accepted as state', () => {
 });
 
 test('the state token is not usable as a login token', () => {
-  const state = signState('user-1');
-  assert.throws(() => jwt.verify(state, process.env.JWT_SECRET));
+  assert.throws(() => jwt.verify(signState('user-1'), process.env.JWT_SECRET));
 });
 
-test('authorization URL has the required parameters', () => {
+test('login URL uses the configuration id and no scope list', () => {
   const url = new URL(buildAuthUrl('abc'));
-  assert.equal(url.origin + url.pathname, 'https://www.instagram.com/oauth/authorize');
+  assert.equal(url.origin + url.pathname, 'https://www.facebook.com/dialog/oauth');
   assert.equal(url.searchParams.get('client_id'), '12345');
+  assert.equal(url.searchParams.get('config_id'), '67890');
   assert.equal(url.searchParams.get('redirect_uri'), process.env.INSTAGRAM_REDIRECT_URI);
   assert.equal(url.searchParams.get('response_type'), 'code');
+  assert.equal(url.searchParams.get('override_default_response_type'), 'true');
   assert.equal(url.searchParams.get('state'), 'abc');
-  assert.match(url.searchParams.get('scope'), /instagram_business_content_publish/);
+  assert.equal(url.searchParams.get('scope'), null);
 });

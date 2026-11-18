@@ -7,7 +7,7 @@ const schema = new mongoose.Schema(
     username: { type: String, required: true },
     accessTokenEnc: { type: String, required: true, select: false }, // never loaded unless asked for
     tokenIssuedAt: { type: Date, required: true },
-    tokenExpiresAt: { type: Date, required: true },
+    tokenExpiresAt: { type: Date }, // empty when the token never expires
   },
   { timestamps: true }
 );
