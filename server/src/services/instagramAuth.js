@@ -1,8 +1,6 @@
 import { createHmac, randomBytes } from 'node:crypto';
 import jwt from 'jsonwebtoken';
 
-export const SCOPES = ['instagram_business_basic', 'instagram_business_content_publish'];
-
 // The state token uses a key derived from JWT_SECRET, so it can never be used as a login token
 const stateKey = () =>
   createHmac('sha256', process.env.JWT_SECRET || '').update('instagram-oauth-state').digest('hex');
@@ -25,14 +23,16 @@ export function verifyState(state) {
   }
 }
 
+// Unified login: Facebook Login for Business with a configuration id (no scope list)
 export function buildAuthUrl(state) {
-  const { INSTAGRAM_APP_ID, INSTAGRAM_REDIRECT_URI } = process.env;
-  const url = new URL('https://www.instagram.com/oauth/authorize');
+  const { META_APP_ID, META_LOGIN_CONFIG_ID, INSTAGRAM_REDIRECT_URI } = process.env;
+  const url = new URL('https://www.facebook.com/dialog/oauth');
   url.search = new URLSearchParams({
-    client_id: INSTAGRAM_APP_ID,
+    client_id: META_APP_ID,
+    config_id: META_LOGIN_CONFIG_ID,
     redirect_uri: INSTAGRAM_REDIRECT_URI,
     response_type: 'code',
-    scope: SCOPES.join(','),
+    override_default_response_type: 'true',
     state,
   }).toString();
   return url.toString();
