@@ -6,6 +6,7 @@ import { validate } from '../middleware/validate.js';
 import { requireAuth } from '../middleware/auth.js';
 import { AppError } from '../middleware/errorHandler.js';
 import { registerSchema, loginSchema } from '../schemas/auth.js';
+import { authLimiter } from '../middleware/rateLimits.js';
 
 const router = Router();
 
@@ -19,7 +20,7 @@ const publicUser = (u) => ({ id: u._id, email: u.email, name: u.name });
 // Used to keep login timing similar when the email doesn't exist
 const DUMMY_HASH = bcrypt.hashSync('not-a-real-password', 12);
 
-router.post('/register', validate(registerSchema), async (req, res, next) => {
+router.post('/register', authLimiter, validate(registerSchema), async (req, res, next) => {
   try {
     const { email, password, name } = req.body;
     const passwordHash = await bcrypt.hash(password, 12);
@@ -30,7 +31,7 @@ router.post('/register', validate(registerSchema), async (req, res, next) => {
   }
 });
 
-router.post('/login', validate(loginSchema), async (req, res, next) => {
+router.post('/login', authLimiter, validate(loginSchema), async (req, res, next) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email }).select('+passwordHash');

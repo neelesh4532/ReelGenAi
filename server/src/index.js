@@ -14,6 +14,7 @@ import authRouter from './routes/auth.js';
 import { requireAuth } from './middleware/auth.js';
 import instagramRouter from './routes/instagram.js';
 import { assertEncryptionKey } from './services/crypto.js';
+import { apiLimiter, scriptLimiter } from './middleware/rateLimits.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -27,8 +28,10 @@ app.use(
   })
 );
 app.use(helmet());
+app.set('trust proxy', process.env.TRUST_PROXY === '1' ? 1 : false);
 app.use(cors({ origin: process.env.CLIENT_URL || 'http://127.0.0.1:5500' }));
 app.use(express.json({ limit: '100kb' }));
+app.use('/api', apiLimiter);
 app.use('/api/instagram', instagramRouter);
 
 app.get('/health', (req, res) => {
@@ -41,7 +44,7 @@ app.get('/health', (req, res) => {
 
 app.use('/api/auth', authRouter);
 app.use('/api/ideas', ideasRouter);
-app.use('/api/scripts', requireAuth, scriptsRouter);
+app.use('/api/scripts', requireAuth, scriptLimiter, scriptsRouter);
 app.use('/api/projects', requireAuth, projectsRouter);
 
 app.use(notFound);

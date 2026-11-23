@@ -8,6 +8,7 @@ import { scriptSchema } from '../schemas/script.js';
 import { InstagramAccount } from '../models/InstagramAccount.js';
 import { enqueuePublish, cancelPublish, getPublishJob } from '../queue/publishQueue.js';
 import { parseSchedule } from '../services/schedule.js';
+import {renderLimiter, publishLimiter } from '../middleware/rateLimits.js';
 
 const router = Router();
 
@@ -42,7 +43,7 @@ router.get('/:id', async (req, res, next) => {
 });
 
 // Starts a render in the background and returns immediately
-router.post('/:id/render', async (req, res, next) => {
+router.post('/:id/render', renderLimiter, async (req, res, next) => {
   try {
     const project = await ownedProject(req, 'status script.scenes');
     if (!project.script?.scenes?.length) throw new AppError('Project has no script yet', 400);
@@ -125,7 +126,7 @@ router.get('/:id/status', async (req, res, next) => {
 });
 
 // Publishes now, or at the time given in { scheduledFor } (ISO date)
-router.post('/:id/publish', async (req, res, next) => {
+router.post('/:id/publish', publishLimiter, async (req, res, next) => {
   try {
     const project = await ownedProject(req, 'status videoUrl igMediaId publishedVideoUrl');
     if (project.status !== 'rendered' || !project.videoUrl) {
