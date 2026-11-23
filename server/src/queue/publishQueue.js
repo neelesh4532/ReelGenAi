@@ -1,6 +1,7 @@
 import { Queue } from 'bullmq';
 import { createConnection } from './connection.js';
 import { logger } from '../config/logger.js';
+import { AppError } from '../middleware/errorHandler.js';
 import { PUBLISH_QUEUE, publishJobIdFor } from './constants.js';
 
 const ACTIVE_STATES = ['waiting', 'active', 'delayed', 'prioritized', 'waiting-children'];
@@ -25,9 +26,12 @@ function withTimeout(promise, ms = 5000) {
   return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
 }
 
-export async function enqueuePublish(projectId, userId) {
-  const id = publishJobIdFor(projectId);
-  const existing = await withTimeout(publishQueue.getJob(id));
+export const getPublishJob = (projectId) =>
+  withTimeout(publishQueue.getJob(publishJobIdFor(projectId)));
+
+// delayMs > 0 schedules the post. expectedVideoUrl makes the job refuse to post a different video later.
+export async function enqueuePublish(projectId, userId, { delayMs = 0, expectedVideoUrl } = {}) {
+  const existing = await getPublishJob(projectId);
 
   if (existing) {
     const state = await existing.getState();
@@ -36,7 +40,22 @@ export async function enqueuePublish(projectId, userId) {
   }
 
   const job = await withTimeout(
-    publishQueue.add('publish-reel', { projectId: String(projectId), userId: String(userId) }, { jobId: id })
+    publishQueue.add(
+      'publish-reel',
+      { projectId: String(projectId), userId: String(userId), expectedVideoUrl },
+      { jobId: publishJobIdFor(projectId), ...(delayMs > 0 ? { delay: delayMs } : {}) }
+    )
   );
   return { job, alreadyActive: false };
+}
+
+// Removes a scheduled (or waiting) job. A job that is already running cannot be cancelled.
+export async function cancelPublish(projectId) {
+  const job = await getPublishJob(projectId);
+  if (!job) return false;
+  if ((await job.getState()) === 'active') {
+    throw new AppError('Publishing has already started and cannot be cancelled', 409);
+  }
+  await job.remove();
+  return true;
 }

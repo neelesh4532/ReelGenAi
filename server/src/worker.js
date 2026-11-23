@@ -52,7 +52,7 @@ const renderWorker = new Worker(
 const publishWorker = new Worker(
   PUBLISH_QUEUE,
   async (job) => {
-    const { projectId, userId } = job.data;
+    const { projectId, userId, expectedVideoUrl } = job.data;
     const attempt = job.attemptsMade + 1;
     const maxAttempts = job.opts.attempts ?? 1;
     logger.info({ jobId: job.id, projectId, attempt, maxAttempts }, 'Publish started');
@@ -62,6 +62,7 @@ const publishWorker = new Worker(
     try {
       return await publishProject(projectId, {
         userId,
+        expectedVideoUrl,
         shouldRetry,
         onProgress: (p) => job.updateProgress(p).catch(() => {}),
       });
