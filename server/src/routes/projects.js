@@ -5,6 +5,8 @@ import { AppError } from '../middleware/errorHandler.js';
 import { enqueueRender, getRenderJob } from '../queue/renderQueue.js';
 import { validate } from '../middleware/validate.js';
 import { scriptSchema } from '../schemas/script.js';
+import { InstagramAccount } from '../models/InstagramAccount.js';
+import { enqueuePublish } from '../queue/publishQueue.js';
 
 const router = Router();
 
@@ -67,21 +69,24 @@ router.post('/:id/render', async (req, res, next) => {
 // Combines the database status with live job progress from the queue
 router.get('/:id/status', async (req, res, next) => {
   try {
-    const project = await ownedProject(req, 'status renderError videoDurationSec renderedAt videoUrl');
+    const project = await ownedProject(
+      req,
+      'status renderError videoDurationSec renderedAt videoUrl publishState publishError igMediaId igPermalink publishedAt publishedVideoUrl'
+    );
 
     let job = null;
     try {
       const j = await getRenderJob(project._id);
-          if (j) {
-            job = {
-              state: await j.getState(),
-              progress: j.progress,
-              attemptsMade: j.attemptsMade,
-              maxAttempts: j.opts.attempts,
-              failedReason: j.failedReason,
-          };
-        }
-      } catch {
+      if (j) {
+        job = {
+          state: await j.getState(),
+          progress: j.progress,
+          attemptsMade: j.attemptsMade,
+          maxAttempts: j.opts.attempts,
+          failedReason: j.failedReason,
+        };
+      }
+    } catch {
       // queue unavailable: fall back to the database status only
     }
 
@@ -92,6 +97,11 @@ router.get('/:id/status', async (req, res, next) => {
       renderedAt: project.renderedAt,
       videoUrl: project.videoUrl,
       job,
+      publishState: project.publishState,
+      publishError: project.publishError,
+      igPermalink: project.igPermalink,
+      publishedAt: project.publishedAt,
+      publishedCurrent: Boolean(project.igMediaId && project.publishedVideoUrl === project.videoUrl),
     });
   } catch (err) {
     next(err);
@@ -118,3 +128,35 @@ router.patch('/:id/script', validate(scriptSchema), async (req, res, next) => {
 });
 
 export default router;
+
+// Queues a publish job; the worker talks to Instagram
+router.post('/:id/publish', async (req, res, next) => {
+  try {
+    const project = await ownedProject(req, 'status videoUrl igMediaId publishedVideoUrl');
+    if (project.status !== 'rendered' || !project.videoUrl) {
+      throw new AppError('Render the video first (cloud storage must be on)', 409);
+    }
+    if (project.igMediaId && project.publishedVideoUrl === project.videoUrl) {
+      throw new AppError('This video is already published', 409);
+    }
+    if (!(await InstagramAccount.exists({ user: req.user.id }))) {
+      throw new AppError('Connect Instagram first', 409);
+    }
+
+    let result;
+    try {
+      result = await enqueuePublish(project._id, req.user.id);
+    } catch {
+      throw new AppError('Publish queue is unavailable, try again shortly', 503);
+    }
+    if (result.alreadyActive) throw new AppError('Publishing is already in progress', 409);
+
+    await Project.updateOne(
+      { _id: project._id, publishState: { $ne: 'publishing' } },
+      { $set: { publishState: 'queued' }, $unset: { publishError: 1 } }
+    );
+    res.status(202).json({ projectId: project._id, publishState: 'queued' });
+  } catch (err) {
+    next(err);
+  }
+});

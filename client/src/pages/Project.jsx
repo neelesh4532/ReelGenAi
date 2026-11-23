@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { api } from '../api.js';
+import PublishCard from '../components/PublishCard.jsx';
 
 const ACTIVE = ['queued', 'rendering'];
 const STAGES = {
@@ -189,7 +190,7 @@ export default function Project() {
           )}
         </section>
       )}
-
+      <PublishCard projectId={id} rendered={status === 'rendered' && Boolean(project.videoUrl)} />
       {draft ? (
         <section className="input-card glass-panel editor">
           <h3>Script</h3>
