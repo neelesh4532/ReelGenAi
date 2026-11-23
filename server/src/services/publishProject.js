@@ -27,7 +27,7 @@ export async function publishProject(
   if (expectedVideoUrl && project.videoUrl !== expectedVideoUrl) {
     throw permanent('The video changed after this post was scheduled, please schedule it again');
   }
-
+    // A scheduled post must never publish a video other than the one that was scheduled
   if (project.status !== 'rendered' || !project.videoUrl) throw permanent('Render the video first');
   if (!project.videoUrl.startsWith('https://')) throw permanent('The video needs a public HTTPS link');
   if (project.videoDurationSec > MAX_REEL_SECONDS) {
