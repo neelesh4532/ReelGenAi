@@ -6,6 +6,53 @@ services:
       - "127.0.0.1:6379:6379"
     volumes:
       - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  server:
+    build: ./server
+    env_file: ./server/.env
+    environment:
+      NODE_ENV: production
+      PORT: "5000"
+      REDIS_URL: redis://redis:6379
+      CLIENT_URL: http://localhost:8080
+      TRUST_PROXY: "1"
+    ports:
+      - "127.0.0.1:5000:5000"
+    volumes:
+      - ./server/storage:/app/storage
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  worker:
+    build: ./server
+    command: ["node", "src/worker.js"]
+    env_file: ./server/.env
+    environment:
+      NODE_ENV: production
+      REDIS_URL: redis://redis:6379
+    volumes:
+      - ./server/storage:/app/storage
+    healthcheck:
+      disable: true
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  client:
+    build: ./client
+    ports:
+      - "127.0.0.1:8080:80"
+    depends_on:
+      - server
     restart: unless-stopped
 
 volumes:

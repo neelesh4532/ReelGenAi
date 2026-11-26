@@ -46,9 +46,9 @@ async function addMusic(videoFile, musicFile, outFile, volume = 0.1) {
     [
       '-i', videoFile,
       '-stream_loop', '-1', '-i', musicFile, // loop the track if it is shorter than the reel
-      '-filter_complex',
-      `[1:a]volume=${volume},afade=t=in:st=0:d=1.5,afade=t=out:st=${fadeOutAt}:d=1.5[m];` +
-        `[0:a][m]amix=inputs=2:duration=first:dropout_transition=0:normalize=0[a]`,
+        '-filter_complex',
+        `[1:a]volume=${volume},afade=t=in:st=0:d=1.5,afade=t=out:st=${fadeOutAt}:d=1.5[m];` +
+          `[0:a][m]amix=inputs=2:duration=first:dropout_transition=0,volume=2,alimiter=limit=0.95[a]`,
       '-map', '0:v', '-map', '[a]',
       '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k',
       '-t', total.toFixed(2),
