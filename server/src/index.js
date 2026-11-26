@@ -7,7 +7,6 @@ import pinoHttp from 'pino-http';
 import { logger } from './config/logger.js';
 import { connectDB } from './config/db.js';
 import { notFound, errorHandler } from './middleware/errorHandler.js';
-import ideasRouter from './routes/ideas.js';
 import scriptsRouter from './routes/scripts.js';
 import projectsRouter from './routes/projects.js';
 import authRouter from './routes/auth.js';
@@ -43,7 +42,6 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/api/auth', authRouter);
-app.use('/api/ideas', ideasRouter);
 app.use('/api/scripts', requireAuth, scriptLimiter, scriptsRouter);
 app.use('/api/projects', requireAuth, projectsRouter);
 

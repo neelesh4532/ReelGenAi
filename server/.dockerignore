@@ -1,0 +1,8 @@
+node_modules
+storage
+.env
+.env.*
+tests
+scripts
+nodemon.json
+npm-debug.log
